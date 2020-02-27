@@ -12,9 +12,10 @@ namespace OrderManagerAPI.Models
         [Required]
         public string Description { get; set; }
         [Required]
-        [Range(0, double.MaxValue)]
-        public double price { get; set; }
-        public string imageURL { get; set; }
+        [Range(double.Epsilon, double.MaxValue)]
+        public double Price { get; set; }
+        public string ImageURL { get; set; } 
+        public virtual ICollection<Order> Orders { get; set; }
 
     }
 }

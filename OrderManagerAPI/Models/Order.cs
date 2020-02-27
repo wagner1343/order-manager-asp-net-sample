@@ -10,12 +10,9 @@ namespace OrderManagerAPI.Models
     public class Order : Entity
     {
         [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int number { get; set; }
-        [Required]
         public virtual ICollection<Product> Products { get; set; }
         [Required]
-        public Client Client { get; set; }
+        public virtual Client Client { get; set; }
         [Required]
         public double Value { get; set; }
         public double Discount { get; set; }

@@ -6,6 +6,7 @@ using System.Web.Http;
 using System.Web.Http.Cors;
 
 using System.Net.Http.Formatting;
+using MultipartDataMediaFormatter;
 
 namespace OrderManagerAPI
 {
@@ -19,6 +20,7 @@ namespace OrderManagerAPI
 
             config.Formatters.Clear();
             config.Formatters.Add(new JsonMediaTypeFormatter());
+            config.Formatters.Add(new FormMultipartEncodedMediaTypeFormatter());
 
             // Rotas da API da Web
             config.MapHttpAttributeRoutes();
