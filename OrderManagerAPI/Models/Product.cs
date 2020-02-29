@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
 
 namespace OrderManagerAPI.Models
 {
@@ -14,8 +11,8 @@ namespace OrderManagerAPI.Models
         [Required]
         [Range(double.Epsilon, double.MaxValue)]
         public double Price { get; set; }
-        public string ImageURL { get; set; } 
-        public virtual ICollection<Order> Orders { get; set; }
+        public string ImageURL { get; set; }
+        public virtual ICollection<OrderProduct> Orders { get; set; }
 
     }
 }

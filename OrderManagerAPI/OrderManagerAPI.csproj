@@ -229,6 +229,7 @@
     <Compile Include="Models\Client.cs" />
     <Compile Include="Models\Entity.cs" />
     <Compile Include="Models\Order.cs" />
+    <Compile Include="Models\OrderProduct.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

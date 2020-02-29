@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
 
 namespace OrderManagerAPI.Models
 {
     public class Order : Entity
     {
         [Required]
-        public virtual ICollection<Product> Products { get; set; }
+        public virtual ICollection<OrderProduct> Products { get; set; }
         [Required]
         public virtual Client Client { get; set; }
         [Required]

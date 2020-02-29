@@ -1,7 +1,6 @@
-﻿using System;
+﻿using OrderManagerAPI.Models;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
-using OrderManagerAPI.Models;
 
 namespace OrderManagerAPI.Context
 {

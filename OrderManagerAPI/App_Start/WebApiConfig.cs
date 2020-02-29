@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web.Http;
-
-using System.Web.Http.Cors;
-
+﻿using MultipartDataMediaFormatter;
 using System.Net.Http.Formatting;
-using MultipartDataMediaFormatter;
+using System.Web.Http;
 
 namespace OrderManagerAPI
 {
@@ -14,9 +8,7 @@ namespace OrderManagerAPI
     {
         public static void Register(HttpConfiguration config)
         {
-            // Serviços e configuração da API da Web
-            var cors = new EnableCorsAttribute("*", "*", "*");
-            config.EnableCors(cors);
+            config.EnableCors();
 
             config.Formatters.Clear();
             config.Formatters.Add(new JsonMediaTypeFormatter());

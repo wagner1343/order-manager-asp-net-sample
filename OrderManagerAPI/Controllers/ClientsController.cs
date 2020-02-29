@@ -1,36 +1,34 @@
-﻿using System;
+﻿using OrderManagerAPI.Context;
+using OrderManagerAPI.Models;
+using System;
 using System.Collections.Generic;
-using System.Data.Entity.Core;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Validation;
-using System.Data.SqlClient;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.Http;
-using OrderManagerAPI.Context;
-using OrderManagerAPI.Models;
+using System.Web.Http.Cors;
 
 namespace OrderManagerAPI.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class ClientsController : ApiController
     {
         public class ClientData
         {
-            public long Id { get; set; }
+            public long id { get; set; }
             public DateTime createdAt { get; set; }
-            public string Name { get; set; }
-            public string Email { get; set; }
+            public string name { get; set; }
+            public string email { get; set; }
         }
 
         public static ClientData getData(Client client)
         {
             return new ClientData
             {
-                Id = client.Id,
+                id = client.Id,
                 createdAt = client.CreatedAt,
-                Name = client.Name,
-                Email = client.Email
+                name = client.Name,
+                email = client.Email
             };
         }
 
@@ -61,7 +59,7 @@ namespace OrderManagerAPI.Controllers
 
         public IHttpActionResult Post(NewClientData data)
         {
-            
+
             using (var context = new OrderManagerDBContext())
             {
                 try
@@ -75,20 +73,20 @@ namespace OrderManagerAPI.Controllers
                         Email = data.Email
                     };
 
-                    context.Clients.Add(client);
+                    client = context.Clients.Add(client);
                     context.SaveChanges();
 
-                    return Ok();
+                    return Ok<ClientData>(getData(client));
                 }
                 catch (DbEntityValidationException validationException)
                 {
                     return BadRequest(validationException.EntityValidationErrors.First().ValidationErrors.First().ErrorMessage);
                 }
-                catch(DbUpdateException e)
+                catch (DbUpdateException e)
                 {
                     return BadRequest($"Já existe um cliente com o email {data.Email} cadastrado.");
                 }
-                
+
             }
         }
 

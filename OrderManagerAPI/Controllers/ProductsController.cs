@@ -2,35 +2,36 @@
 using OrderManagerAPI.Models;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Validation;
 using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Cors;
 
 namespace OrderManagerAPI.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class ProductsController : ApiController
     {
         public class ProductData
         {
-            public long Id { get; set; }
-            public DateTime CreatedAt { get; set; }
-            public string Description { get; set; }
-            public double Price { get; set; }
-            public string ImageURL { get; set; }
+            public long id { get; set; }
+            public DateTime createdAt { get; set; }
+            public string description { get; set; }
+            public double price { get; set; }
+            public string imageURL { get; set; }
         }
 
         public static ProductData getData(Product product)
         {
             return new ProductData
             {
-                Id = product.Id,
-                CreatedAt = product.CreatedAt,
-                Description = product.Description,
-                Price = product.Price,
-                ImageURL = product.ImageURL,
+                id = product.Id,
+                createdAt = product.CreatedAt,
+                description = product.Description,
+                price = product.Price,
+                imageURL = product.ImageURL,
             };
         }
 
@@ -92,7 +93,7 @@ namespace OrderManagerAPI.Controllers
                         context.SaveChanges();
                     }
 
-                    return Ok();
+                    return Ok<ProductData>(getData(product));
                 }
                 catch (DbEntityValidationException validationException)
                 {

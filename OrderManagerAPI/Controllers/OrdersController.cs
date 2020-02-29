@@ -3,28 +3,42 @@ using OrderManagerAPI.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity.Validation;
-using System.IO;
 using System.Linq;
-using System.Web;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using static OrderManagerAPI.Controllers.ClientsController;
 using static OrderManagerAPI.Controllers.ProductsController;
 
 namespace OrderManagerAPI.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class OrdersController : ApiController
     {
 
+        public class OrderProductData
+        {
+            public ProductData product { get; set; }
+            public int amount { get; set; }
+        }
+
         public class OrderData
         {
-            public long Id { get; set; }
-            public DateTime CreatedAt { get; set; }
-            public long? Number { get; set; }
-            public virtual ICollection<ProductData> Products { get; set; }
-            public ClientData Client { get; set; }
-            public double Value { get; set; }
-            public double Discount { get; set; }
-            public double TotalValue { get; set; }
+            public long id { get; set; }
+            public DateTime createdAt { get; set; }
+            public virtual ICollection<OrderProductData> products { get; set; }
+            public ClientData client { get; set; }
+            public double value { get; set; }
+            public double discount { get; set; }
+            public double totalValue { get; set; }
+        }
+
+        static OrderProductData getOrderProductData(OrderProduct orderProduct)
+        {
+            return new OrderProductData
+            {
+                product = ProductsController.getData(orderProduct.Product),
+                amount = orderProduct.Amount
+            };
         }
 
 
@@ -32,13 +46,13 @@ namespace OrderManagerAPI.Controllers
         {
             return new OrderData
             {
-                Id = order.Id,
-                CreatedAt = order.CreatedAt,
-                Products = order.Products.Select(ProductsController.getData).ToList(),
-                Client = ClientsController.getData(order.Client),
-                Value = order.Value,
-                Discount = order.Discount,
-                TotalValue = order.TotalValue,
+                id = order.Id,
+                createdAt = order.CreatedAt,
+                products = order.Products.Select(getOrderProductData).ToList(),
+                client = ClientsController.getData(order.Client),
+                value = order.Value,
+                discount = order.Discount,
+                totalValue = order.TotalValue,
             };
         }
 
@@ -59,12 +73,19 @@ namespace OrderManagerAPI.Controllers
             }
         }
 
+        public class NewOrderProductData
+        {
+            public int ProductId { get; set; }
+            public int Amount { get; set; }
+        }
+
         public class NewOrderData
         {
-            public virtual List<long> ProductIds { get; set; }
+            public virtual List<NewOrderProductData> Products { get; set; }
             public long? ClientId { get; set; }
             public double Discount { get; set; }
         }
+
 
 
         public IHttpActionResult Post(NewOrderData data)
@@ -74,10 +95,27 @@ namespace OrderManagerAPI.Controllers
                 try
                 {
                     var client = data.ClientId != null ? context.Clients.Find(data.ClientId) : null;
-                    var products = data.ProductIds != null ? context.Products.Where(p => data.ProductIds.Contains(p.Id)).ToList() : null;
-                    double value = products?.Aggregate(0.0, (sum, next) => sum + next.Price) ?? 0;
+                    var products = new List<OrderProduct>();
+
+                    if (data.Products != null)
+                    {
+                        foreach (var orderProductData in data.Products)
+                        {
+                            var p = context.Products.Find(orderProductData.ProductId);
+                            if (p != null)
+                            {
+                                products.Add(new OrderProduct { Product = p, Amount = orderProductData.Amount, CreatedAt = DateTime.Now });
+                            }
+                            else
+                            {
+                                return BadRequest($"O produto com o id {orderProductData.ProductId} não pode ser encontrado");
+                            }
+                        }
+                    }
+
+                    double value = products?.Aggregate(0.0, (sum, next) => sum + (next.Amount * next.Product.Price)) ?? 0;
                     data.Discount = Math.Max(0, data.Discount);
-                    double totalValue = value - data.Discount;
+                    double totalValue = Math.Max(value - data.Discount, 0);
 
                     var order = new Order()
                     {
@@ -89,10 +127,10 @@ namespace OrderManagerAPI.Controllers
                         TotalValue = totalValue
                     };
 
-                    context.Orders.Add(order);
+                    order = context.Orders.Add(order);
                     context.SaveChanges();
 
-                    return Ok();
+                    return Ok<OrderData>(getData(order));
                 }
                 catch (DbEntityValidationException validationException)
                 {
